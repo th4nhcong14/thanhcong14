@@ -36,21 +36,74 @@ exports.findAll = async (req, res, next) => {
     
 };
 
-exports.findOne = (req, res, next) => {
-    return res.send({ message: 'findone handler' });
+exports.findOne = async (req, res, next) => {
+    try {
+        const contactService = new ContactService();
+        const contact = await contactService.findById(req.params.id);
+        console.log(contact);
+        if (!contact) {
+            return next (new ApiError(404, 'Contact not found'));
+        } 
+        return res.send(contact);
+        
+    } catch (error) {
+        console.log(error);
+        return next(
+            new ApiError(500, `Error retrieving contact with id = ${req.params.id}`));
+    }
 };
 
-exports.update = (req, res, next) => {
-    return res.send({ message: 'update handler' });
+exports.update = async (req, res, next) => {
+    if (Object.keys(req.body).length ===0) {
+        return next(new ApiError(400, 'Data to update can not be empty'));
+    }
+
+    try {
+        const contactService = new ContactService();
+        const update = await contactService.update(req.params.id, req.body);
+        if (!update) {
+            return next(new ApiError(404, 'Contact not found'));
+        }
+        return res.send({message: 'Contact was update successfully'});
+    } catch (error) {
+        console.log(error);
+        return next(
+            new ApiError(500, `Error update contact with id=${req.params.id}`)
+        );
+    }
 };
-exports.delete = (req, res, next) =>{
-    return res.send({ message: 'delete handler' });
+exports.delete = async (req, res, next) =>{
+    try {
+        const contactService = new ContactService();
+        const deleted = await contactService.delete(req.params.id);
+        if (!deleted) {
+            return next(new ApiError(404, 'Contact not found'));
+        }
+        return res.send({message: 'Contact was delete successfully'})
+    } catch (error) {
+        console.log(error);
+        return next(new ApiError(500,`Cound not delete contact withc id=${req.params.id}`));
+    }
 };
 
-exports.deleteAll = (req, res, next) => {
-    return res.send({ message: 'deleteAll handler' });
+exports.deleteAll = async (req, res, next) => {
+    try {
+        const contactService = new ContactService();
+        const deleted = await contactService.deleteAll();
+        return res.send({message: `${deleted} contacts were deleted successfully`});
+    } catch (error) {
+        console.log(error);
+        return next(new ApiError(500,'An error occurred while retrieving favorite contacts'));
+    }
 };
 
-exports.findAllFavorite = (req, res) => {
-    return res.send({ message: 'findALLFavorite handler' });
+exports.findAllFavorite = async (req, res, next) => {
+    try {
+        const contactService = new ContactService();
+        const contacts = await contactService.allFavorite();
+        return res.send(contacts)
+    } catch (error) {
+        console.log(error);
+        return next(new ApiError(500,'An error occurred while rremoving all contacts'));
+    }
 };
