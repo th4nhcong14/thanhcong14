@@ -4,6 +4,7 @@ const routes = [
         path: '/:pathMatch(.*)*',
         name: 'notfound',
         component: () => import('@/views/NotFound.vue'),
+        props: (route) => ({ contactId: parseInt(route.params.id) })
     },
 ];
 const router = createRouter({
